@@ -15,14 +15,28 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v5
+
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
           node-version: '24.21.0'
+
       - name: Install dependencies
         run: npm install --no-audit --no-fund
-      - name: Build installer and portable app
+
+      - name: Build installer and portable app without auto-publishing
         run: npm run dist:win
+
+      - name: Verify Windows output files
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem dist -Filter '*.exe' -File
+          if ($files.Count -lt 2) {
+            Get-ChildItem dist -Force | Format-Table Name, Length
+            throw 'Expected both the Windows installer and portable EXE in dist.'
+          }
+          $files | Format-Table Name, Length
+
       - name: Upload Windows files
         uses: actions/upload-artifact@v7
         with:
@@ -30,12 +44,13 @@ jobs:
           path: dist/*.exe
           if-no-files-found: error
           retention-days: 30
+
       - name: Publish GitHub Release for version tags
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          $files = Get-ChildItem dist -Filter '*.exe' | ForEach-Object { $_.FullName }
+          $files = Get-ChildItem dist -Filter '*.exe' -File | ForEach-Object { $_.FullName }
           if (-not $files) { throw 'No Windows executable files were created.' }
           gh release create "$env:GITHUB_REF_NAME" $files --title "$env:GITHUB_REF_NAME" --generate-notes
