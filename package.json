@@ -1,0 +1,67 @@
+{
+  "name": "mina-maintenance-desktop",
+  "version": "1.0.0",
+  "description": "نظام إدارة الصيانة - نسخة Windows لسطح المكتب",
+  "author": "ENG. Mark Eshak | Infinity MEN2",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "44.7.2",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.infinitymen2.minamaintenance",
+    "productName": "MINA MAINTENANCE",
+    "asar": true,
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "index.html",
+      "main.cjs",
+      "assets/**/*",
+      "build/icon.ico",
+      "package.json",
+      "!original-input.html",
+      "!dist/**/*",
+      "!node_modules/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MINA MAINTENANCE",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false
+    },
+    "portable": {
+      "artifactName": "${productName}-Portable-${version}.${ext}"
+    },
+    "artifactName": "${productName}-Setup-${version}.${ext}"
+  }
+}
